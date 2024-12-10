@@ -37,33 +37,28 @@ func main() {
 }
 
 func homeHandler(c *gin.Context) {
-	tmpl, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	err = tmpl.Execute(c.Writer, gin.H{})
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
+	serveTemplate(c, "templates/index.html", gin.H{})
 }
 
 func protectedHandler(c *gin.Context) {
 
 	if authSce.checkAuth(c) {
-		tmpl, err := template.ParseFiles("templates/protected.html")
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-		err = tmpl.Execute(c.Writer, gin.H{})
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
+		serveTemplate(c, "templates/protected.html", gin.H{})
 	} else {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
+}
+
+func serveTemplate(c *gin.Context, templateFile string, data map[string]any) {
+	tmpl, err := template.ParseFiles(templateFile)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(c.Writer, data)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 }
